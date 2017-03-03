@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1017</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QScrollArea" name="areaCalcTreeWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>4</horstretch>
+          <verstretch>2</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="bla">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>68</width>
+           <height>452</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Image Info</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="area_info">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>2</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>68</width>
+           <height>225</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1017</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuDo">
+    <property name="title">
+     <string>Do...</string>
+    </property>
+    <widget class="QMenu" name="menuNodes">
+     <property name="title">
+      <string>Add Nodes</string>
+     </property>
+     <addaction name="actionAddSumNode"/>
+     <addaction name="actionAddPolarizationNode"/>
+    </widget>
+    <addaction name="actionRecalc"/>
+    <addaction name="actionAdd_File"/>
+    <addaction name="menuNodes"/>
+    <addaction name="actionAutoLevel"/>
+    <addaction name="actionSleep"/>
+   </widget>
+   <addaction name="menuDo"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionRecalc">
+   <property name="text">
+    <string>Recalc</string>
+   </property>
+  </action>
+  <action name="actionAddSumNode">
+   <property name="text">
+    <string>Sum</string>
+   </property>
+  </action>
+  <action name="actionAdd_File">
+   <property name="text">
+    <string>Add File</string>
+   </property>
+  </action>
+  <action name="actionAddPolarizationNode">
+   <property name="text">
+    <string>Polarization</string>
+   </property>
+  </action>
+  <action name="actionAutoLevel">
+   <property name="text">
+    <string>Auto Level</string>
+   </property>
+  </action>
+  <action name="actionSleep">
+   <property name="text">
+    <string>Sleep</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
