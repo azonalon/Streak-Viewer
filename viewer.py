@@ -78,7 +78,7 @@ class CalcTreeWidget(QtWidgets.QTreeWidget):
         self.setSelectionMode(QtWidgets.QAbstractItemView.ContiguousSelection)
         self.setItemsExpandable(True)
         self.setAnimated(True)
-        self.setObjectName("tree_images")r
+        self.setObjectName("tree_images")
         self.treeHeaderItem = CalcTreeWidgetItem(['Filename', 'Time'], kind='folder')
         self.setHeaderItem(self.treeHeaderItem)
     def addFunctionNode(self, function, description, argumentCount=-1,
