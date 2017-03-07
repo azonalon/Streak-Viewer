@@ -27,9 +27,11 @@ class TimeAxisItem(pg.AxisItem):
         return [time.strftime('%H:%M:%S', time.localtime(value)) 
                 for value in values]
 
+from multiprocessing import Process
 class LoggerWidget(QtWidgets.QWidget):
-    def __init__(self, logFile, interval, valueGenerator, plotEntries=1000):
-        super().__init__()
+    def __init__(self, logFile, interval, valueGenerator, plotEntries=1000,
+                 parent=None):
+        super().__init__(parent=parent)
         self.logFile = logFile
 #        QtCore.
         self.interval = interval
@@ -48,10 +50,11 @@ class LoggerWidget(QtWidgets.QWidget):
         self.form.layoutPlotWidget.addWidget(self.plotWidget)
         self.form.buttonStop.clicked.connect(self.finish)
         self.form.buttonStart.clicked.connect(self.start)
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.addEntry)
         
+        self.thread = Process(target=self.addEntry)
         self.curve = self.plotWidget.plot()
+        self.timer = QtCore.QTimer(parent=parent)
+        self.timer.timeout.connect(self.thread.start)
         self.start()
         
     def start(self):
@@ -109,7 +112,14 @@ class LoggerWidget(QtWidgets.QWidget):
 #        print(self.values, self.timeStamps)
         self.updatePlot()
         self.n += 1
-            
+        
+
+#class AsynchronousLoggerWidget(LoggerWidget):
+#    def __init__(self, *args, **kwargs):
+#        super().__init__(*args, **kwargs)
+#        self.qthread = QtCore.QThread()
+
+
 x=0
 if __name__ == '__main__':
     sp.run('pyuic5 uidesign/loggerWidget.ui -o uidesign/loggerWidget.py', shell=True)
@@ -121,12 +131,13 @@ if __name__ == '__main__':
     def f():
         global x
         x += 1 - 2*np.random.random()
+        time.sleep(.5)
         return x
     
-    cw = LoggerWidget('yhoo.log', 100, f, plotEntries=1000)
+    cw = LoggerWidget('yhoo.log', 100, f, plotEntries=1000,
+                      parent=mw)
     
     
     mw.setCentralWidget(cw)
-    mb = mw.menuBar()
     mw.show()
     app.exec_()
