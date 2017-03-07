@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 #import excepthook
 import subprocess as sp
-from .uidesign.loggerWidget import Ui_Form
+from uidesign.loggerWidget import Ui_Form
 #from PyQt5.QtCore import QTime, QTimer
 #from collections import deque
 #import time
@@ -27,7 +27,17 @@ class TimeAxisItem(pg.AxisItem):
         return [time.strftime('%H:%M:%S', time.localtime(value)) 
                 for value in values]
 
-#from multiprocessing import Process
+# from multiprocessing import Process
+class FunctionEvaluateThread(QtCore.QThread, QtCore.QObject):
+    resultReady = QtCore.pyqtSignal(float)
+    def __init__(self, f):
+        super().__init__()
+        self.f = f
+
+    def run(self):
+        result = self.f()
+        self.resultReady.emit(result)
+
 class LoggerWidget(QtWidgets.QWidget):
     def __init__(self, logFile, interval, valueGenerator, plotEntries=1000,
                  parent=None):
@@ -35,7 +45,7 @@ class LoggerWidget(QtWidgets.QWidget):
         self.logFile = logFile
 #        QtCore.
         self.interval = interval
-        self.valueGenerator = valueGenerator
+        
         self.numberOfEntries = plotEntries
         self.timeStamps = np.zeros(self.numberOfEntries, dtype=np.float64)
         self.values = np.zeros(self.numberOfEntries, dtype=np.float64)
@@ -50,11 +60,12 @@ class LoggerWidget(QtWidgets.QWidget):
         self.form.layoutPlotWidget.addWidget(self.plotWidget)
         self.form.buttonStop.clicked.connect(self.finish)
         self.form.buttonStart.clicked.connect(self.start)
-        
-#        self.thread = Process(target=self.addEntry)
+
+        self.evaluateThread = FunctionEvaluateThread(valueGenerator)
+        self.evaluateThread.resultReady.connect(self.addEntry)
         self.curve = self.plotWidget.plot()
         self.timer = QtCore.QTimer(parent=parent)
-        self.timer.timeout.connect(self.addEntry)
+        self.timer.timeout.connect(self.requestEntry)
         self.start()
         
     def start(self):
@@ -67,7 +78,6 @@ class LoggerWidget(QtWidgets.QWidget):
     def updatePlot(self):
         x = self.timeStamps
         y = self.values
-#        print(x, y)
         if self.n < self.numberOfEntries:
             self.curve.setData(x=x[-self.n:], y=y[-self.n:])
         else:
@@ -77,9 +87,16 @@ class LoggerWidget(QtWidgets.QWidget):
     def formatTime(self, epochTime):
         return time.strftime('%Y %m %d %H %M %S',
                              time.localtime(epochTime))
+    def requestEntry(self):
+        if self.evaluateThread.isRunning():
+            return
+        self.evaluateThread.start()
+        
 
     def finish(self):
         self.timer.stop()
+        while self.evaluateThread.isRunning():
+            time.sleep(.01)
         f = open(self.logFile, 'a')
         remainingEntries = self.n % self.numberOfEntries
         for j in range(self.numberOfEntries - remainingEntries, self.numberOfEntries):
@@ -89,12 +106,14 @@ class LoggerWidget(QtWidgets.QWidget):
                 )
         f.close()
         
-    def addEntry(self):
-        
-#        if self.n == 2*self.numberOfEntries:
-#            self.finish()
-#            return
+    def addEntry(self, value):
         print('adding entry')
+        self.values = np.roll(self.values, -1)
+        self.timeStamps = np.roll(self.timeStamps, -1)
+        self.values[-1] = value
+        self.timeStamps[-1] = time.time() #- 1488622099.3514423
+        self.n += 1
+        self.updatePlot()
         if self.n % self.numberOfEntries == 0:
             with open(self.logFile, 'a') as f:
                 for j in range(self.numberOfEntries):
@@ -103,21 +122,6 @@ class LoggerWidget(QtWidgets.QWidget):
                                        self.values[j])
                     )
             
-
-        
-        self.values = np.roll(self.values, -1)
-        self.timeStamps = np.roll(self.timeStamps, -1)
-        self.values[-1] = self.valueGenerator()
-        self.timeStamps[-1] = time.time() #- 1488622099.3514423
-#        print(self.values, self.timeStamps)
-        self.updatePlot()
-        self.n += 1
-        
-
-#class AsynchronousLoggerWidget(LoggerWidget):
-#    def __init__(self, *args, **kwargs):
-#        super().__init__(*args, **kwargs)
-#        self.qthread = QtCore.QThread()
 
 
 x=0
