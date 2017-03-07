@@ -27,7 +27,7 @@ class TimeAxisItem(pg.AxisItem):
         return [time.strftime('%H:%M:%S', time.localtime(value)) 
                 for value in values]
 
-from multiprocessing import Process
+#from multiprocessing import Process
 class LoggerWidget(QtWidgets.QWidget):
     def __init__(self, logFile, interval, valueGenerator, plotEntries=1000,
                  parent=None):
@@ -51,10 +51,10 @@ class LoggerWidget(QtWidgets.QWidget):
         self.form.buttonStop.clicked.connect(self.finish)
         self.form.buttonStart.clicked.connect(self.start)
         
-        self.thread = Process(target=self.addEntry)
+#        self.thread = Process(target=self.addEntry)
         self.curve = self.plotWidget.plot()
         self.timer = QtCore.QTimer(parent=parent)
-        self.timer.timeout.connect(self.thread.start)
+        self.timer.timeout.connect(self.addEntry)
         self.start()
         
     def start(self):

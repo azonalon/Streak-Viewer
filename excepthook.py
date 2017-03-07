@@ -14,7 +14,7 @@ def excepthook(excType, excValue, tracebackobj):
     @param excValue exception value
     @param tracebackobj traceback object
     """
-    app = QtWidgets.QApplication()
+    app = QtWidgets.QApplication([])
     separator = '-' * 80
     logFile = "simple.log"
     notice = \
