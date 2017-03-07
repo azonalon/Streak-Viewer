@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import subprocess as sp
+#import subprocess as sp
 #import os
 import sys
 #import numpy as np
@@ -11,11 +11,11 @@ import numpy as np
 from pyqtgraph import QtCore
 Qt = QtCore.Qt
 #from pyqtgraph.Qt import QtWidgets
-from hamamatsu import HamamatsuFile
-from scipy.optimize import curve_fit
+
+#from scipy.optimize import curve_fit
 #from PyQt5.QtWidgets import QMessageBox
-sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
-from uidesign.mainWindow import Ui_MainWindow
+
+from .uidesign.mainWindow import Ui_MainWindow
 def makeColorMap():
     pos = np.array([0., 1., 0.5, 0.25, 0.75])
     color = np.array([[0,255,255,255], [255,255,0,255], [0,0,0,255], (0, 0, 255, 255), (255, 0, 0, 255)], dtype=np.ubyte)
@@ -23,49 +23,9 @@ def makeColorMap():
 cmap = makeColorMap()
 sourceDataFlags = Qt.ItemIsSelectable | Qt.ItemIsUserCheckable \
     | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled #| Qt.ItemIsDropEnabled
-
+import time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-import time, traceback
 
-#from StringIO import cStringIO
-import io
-def excepthook(excType, excValue, tracebackobj):
-    """
-    Global function to catch unhandled exceptions.
-    
-    @param excType exception type
-    @param excValue exception value
-    @param tracebackobj traceback object
-    """
-    separator = '-' * 80
-    logFile = "simple.log"
-    notice = \
-        """An unhandled exception occurred. Please report the problem\n"""\
-        """using the error reporting dialog or via email to <%s>.\n"""\
-        """A log has been written to "%s".\n\nError information:\n""" % \
-        ("yourmail at server.com", "")
-    versionInfo="0.0.1"
-    timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
-    
-    
-    tbinfofile = io.StringIO()
-    traceback.print_tb(tracebackobj, None, tbinfofile)
-    tbinfofile.seek(0)
-    tbinfo = tbinfofile.read()
-    errmsg = '%s: \n%s' % (str(excType), str(excValue))
-    sections = [separator, timeString, separator, errmsg, separator, tbinfo]
-    msg = '\n'.join(sections)
-    try:
-        f = open(logFile, "w")
-        f.write(msg)
-        f.write(versionInfo)
-        f.close()
-    except IOError:
-        pass
-    errorbox = QtWidgets.QMessageBox()
-    errorbox.setText(str(notice)+str(msg)+str(versionInfo))
-    errorbox.exec_()
-sys.excepthook = excepthook
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class CalcTreeWidget(QtWidgets.QTreeWidget):
     def __init__(self, *args, **kwargs):
@@ -90,7 +50,7 @@ class CalcTreeWidget(QtWidgets.QTreeWidget):
     def recalc(self):
         for i in range(self.topLevelItemCount()):
             self.topLevelItem(i).recalc()
-
+        
     
 bytesInImage = 1024*1024*2   
 
@@ -206,7 +166,9 @@ class ImageViewer:
         it.setFlags(sourceDataFlags)
         self.changeActiveImage(it, None)
         
-    
+    def addTabWidget(self, *args, **kwargs):
+        self.form.tabWidget.addTab(*args, **kwargs)
+        
     def loadImageFromFile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName()[0]
         CalcTreeWidgetItem(self.fromFileItems, fromfile = fname, kind='data')
@@ -237,6 +199,8 @@ fit = lambda x, a, b, x0: a*np.exp(b*(x-x0)**2)
 # from aqt.qt import debug; debug()
 #%%
 if __name__=='__main__':
+#    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
+    from hamamatsu import HamamatsuFile
     imv  = ImageViewer()
     imv.setupUi()
     i=0
@@ -249,5 +213,5 @@ if __name__=='__main__':
         imv.addImage(sample.data, sample.header, filename = f)
         imgs.append(sample.data)
         i += 1
-    print(polarization(imgs))
+#    print(polarization(imgs))
     imv.exec()

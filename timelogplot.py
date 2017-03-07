@@ -4,15 +4,15 @@ import numpy as np
 from PyQt5 import QtCore, QtWidgets
 #from pyqtgraph import QtCore
 import pyqtgraph as pg
-import excepthook
+#import excepthook
 import subprocess as sp
-from uidesign.loggerWidget import Ui_Form
+from .uidesign.loggerWidget import Ui_Form
 #from PyQt5.QtCore import QTime, QTimer
 #from collections import deque
 #import time
 #import multiprocessing as mp
 import time
-sp.run('pyuic5 uidesign/loggerWidget.ui -o uidesign/loggerWidget.py', shell=True)
+
 #class DataGenerator():
 #    def __init__(self, ):
 #        self.inUse = False
@@ -110,10 +110,11 @@ class LoggerWidget(QtWidgets.QWidget):
         self.updatePlot()
         self.n += 1
             
-from yahoo_finance import Share
 x=0
 if __name__ == '__main__':
+    sp.run('pyuic5 uidesign/loggerWidget.ui -o uidesign/loggerWidget.py', shell=True)
     #QtGui.QApplication.setGraphicsSystem('raster')
+    from yahoo_finance import Share
     app = QtWidgets.QApplication([])
     mw = QtWidgets.QMainWindow()
     yahoo = Share('YHOO')

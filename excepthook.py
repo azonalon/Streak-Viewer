@@ -5,6 +5,7 @@ import time, traceback
 import io
 from PyQt5 import QtCore, QtWidgets
 import sys
+ 
 def excepthook(excType, excValue, tracebackobj):
     """
     Global function to catch unhandled exceptions.
@@ -13,6 +14,7 @@ def excepthook(excType, excValue, tracebackobj):
     @param excValue exception value
     @param tracebackobj traceback object
     """
+    app = QtWidgets.QApplication()
     separator = '-' * 80
     logFile = "simple.log"
     notice = \
