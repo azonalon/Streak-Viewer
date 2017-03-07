@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 #import excepthook
 import subprocess as sp
-from uidesign.loggerWidget import Ui_Form
+from .uidesign.loggerWidget  import Ui_Form
 #from PyQt5.QtCore import QTime, QTimer
 #from collections import deque
 #import time
