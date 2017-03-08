@@ -72,6 +72,7 @@ class LoggerWidget(QtWidgets.QWidget):
         self.timer.start(self.interval)
         
     def closeEvent(self, event):
+        self.finish()
         print('closing...')
         event.accept()
         
@@ -100,7 +101,7 @@ class LoggerWidget(QtWidgets.QWidget):
         f = open(self.logFile, 'a')
         remainingEntries = self.n % self.numberOfEntries
         for j in range(self.numberOfEntries - remainingEntries, self.numberOfEntries):
-            f.write('%s %f' % (
+            f.write('%s %f\n' % (
                     self.formatTime(self.timeStamps[j]),
                     self.values[j])
                 )

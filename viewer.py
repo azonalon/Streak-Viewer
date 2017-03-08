@@ -113,19 +113,24 @@ def polarization(imgs):
 def imgSum(imgs):
     return np.sum(imgs, axis=0)/len(imgs)
         
-class ImageViewer:
-    def setupUi(self):
+class ImageViewer(QtWidgets.QMainWindow):
+    def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
+        super().__init__()
+        self.setupUi()
+        
+    def setupUi(self):
         self.dtw = pg.DataTreeWidget()
-        self.window = QtWidgets.QMainWindow()
+        
         self.form = Ui_MainWindow()
-        self.form.setupUi(self.window)
+        self.form.setupUi(self)
         self.form.area_info.setWidget(self.dtw)
         self.imgview = pg.ImageView()
         self.form.tabWidget.addTab(self.imgview, "Image")
-        self.form.tabWidget.addTab(self.imgview, "Monitor")
+#        self.form.tabWidget.addTab(self.imgview, "Monitor")
 
         self.treeImages = CalcTreeWidget()
+        self.tabWidgets = [self.imgview]
         self.form.areaCalcTreeWidget.setWidget(self.treeImages)
         self.newItems = CalcTreeWidgetItem(
                 self.treeImages, ['New', ''], kind='folder')
@@ -166,8 +171,9 @@ class ImageViewer:
         it.setFlags(sourceDataFlags)
         self.changeActiveImage(it, None)
         
-    def addTabWidget(self, *args, **kwargs):
-        self.form.tabWidget.addTab(*args, **kwargs)
+    def addTabWidget(self, widget, name):
+        self.form.tabWidget.addTab(widget, name)
+        self.tabWidgets.append(widget)
         
     def loadImageFromFile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName()[0]
@@ -180,8 +186,15 @@ class ImageViewer:
             self.dtw.setData(info)
             self.imgview.setImage(data, autoLevels=False)
 #        print('Item Count', newItem.childCount())
+    def closeEvent(self, event):
+        print('closing main window')
+        for child in self.tabWidgets:
+            print('hi')
+            child.closeEvent(event)
+        event.accept()
+        
     def exec(self):
-        self.window.show()
+        self.show()
         self.app.exec_()
 
 def AutoLevel(data):
