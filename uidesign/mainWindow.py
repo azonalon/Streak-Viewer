@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uidesign/mainWindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.6
+# Created by: PyQt5 UI code generator 5.8
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -86,6 +86,8 @@ class Ui_MainWindow(object):
         self.actionAutoLevel.setObjectName("actionAutoLevel")
         self.actionSleep = QtWidgets.QAction(MainWindow)
         self.actionSleep.setObjectName("actionSleep")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
         self.menuNodes.addAction(self.actionAddSumNode)
         self.menuNodes.addAction(self.actionAddPolarizationNode)
         self.menuDo.addAction(self.actionRecalc)
@@ -93,6 +95,7 @@ class Ui_MainWindow(object):
         self.menuDo.addAction(self.menuNodes.menuAction())
         self.menuDo.addAction(self.actionAutoLevel)
         self.menuDo.addAction(self.actionSleep)
+        self.menuDo.addAction(self.actionSave)
         self.menubar.addAction(self.menuDo.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -110,4 +113,5 @@ class Ui_MainWindow(object):
         self.actionAddPolarizationNode.setText(_translate("MainWindow", "Polarization"))
         self.actionAutoLevel.setText(_translate("MainWindow", "Auto Level"))
         self.actionSleep.setText(_translate("MainWindow", "Sleep"))
+        self.actionSave.setText(_translate("MainWindow", "Save Current Image"))
 

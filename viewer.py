@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#import subprocess as sp
+
 #import os
 import sys
 #import numpy as np
@@ -15,7 +15,7 @@ Qt = QtCore.Qt
 #from scipy.optimize import curve_fit
 #from PyQt5.QtWidgets import QMessageBox
 
-from .uidesign.mainWindow import Ui_MainWindow
+from uidesign.mainWindow import Ui_MainWindow
 def makeColorMap():
     pos = np.array([0., 1., 0.5, 0.25, 0.75])
     color = np.array([[0,255,255,255], [255,255,0,255], [0,0,0,255], (0, 0, 255, 255), (255, 0, 0, 255)], dtype=np.ubyte)
@@ -98,7 +98,8 @@ class CalcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
             try:
                 self.info = eval(str(f.read()))
             except:
-                pass
+                print(fname + ': could not parse metadata')
+#                pass
         
     
 def polarization(imgs):
@@ -159,7 +160,8 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.form.actionSleep.triggered.connect(
                 sleepAndRaise
         )
-        
+        self.form.actionAdd_File.triggered.connect(self.loadImageFromFile)
+        self.form.actionSave.triggered.connect(self.saveImageToFile)
         self.imgview.setColorMap(cmap)
         
     def addImage(self, data, info, filename='New'):
@@ -177,8 +179,21 @@ class ImageViewer(QtWidgets.QMainWindow):
         
     def loadImageFromFile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName()[0]
+        if fname == "":
+            return
         CalcTreeWidgetItem(self.fromFileItems, fromfile = fname, kind='data')
-
+    def saveImageToFile(self, fname=None):
+        item = self.treeImages.currentItem()
+#        print(f)
+        print('fname :', fname)
+        if item == None:
+            return
+#        if fname == None:
+        fname = QtWidgets.QFileDialog.getSaveFileName()[0]
+ 
+        
+        item.saveImageToFile(fname)
+        
     def changeActiveImage(self, newItem, lastItem):
 #        print('item ' +  newItem.data(1, 0) + ' activated')
         if newItem is not None and newItem.img is not None:
@@ -212,7 +227,9 @@ fit = lambda x, a, b, x0: a*np.exp(b*(x-x0)**2)
 # from aqt.qt import debug; debug()
 #%%
 if __name__=='__main__':
-#    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
+    import subprocess as sp
+    import excepthook
+    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
     from hamamatsu import HamamatsuFile
     imv  = ImageViewer()
     imv.setupUi()
@@ -226,5 +243,7 @@ if __name__=='__main__':
         imv.addImage(sample.data, sample.header, filename = f)
         imgs.append(sample.data)
         i += 1
+    imv.newItems.child(0).saveImageToFile('testimg.img')
+    node = CalcTreeWidgetItem(imv.fromFileItems, fromfile = 'testimg.img')
 #    print(polarization(imgs))
     imv.exec()

@@ -118,6 +118,7 @@
     <addaction name="menuNodes"/>
     <addaction name="actionAutoLevel"/>
     <addaction name="actionSleep"/>
+    <addaction name="actionSave"/>
    </widget>
    <addaction name="menuDo"/>
   </widget>
@@ -150,6 +151,11 @@
   <action name="actionSleep">
    <property name="text">
     <string>Sleep</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save Current Image</string>
    </property>
   </action>
  </widget>
