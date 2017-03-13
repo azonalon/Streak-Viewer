@@ -5,24 +5,8 @@ import time, traceback
 import io
 from PyQt5 import QtCore, QtWidgets
 import sys
- 
-def excepthook(excType, excValue, tracebackobj):
-    """
-    Global function to catch unhandled exceptions.
-    
-    @param excType exception type
-    @param excValue exception value
-    @param tracebackobj traceback object
-    """
-    app = QtWidgets.QApplication([])
+def PrettyPrintException(excType, excValue, tracebackobj):
     separator = '-' * 80
-    logFile = "simple.log"
-    notice = \
-        """An unhandled exception occurred. Please report the problem\n"""\
-        """using the error reporting dialog or via email to <%s>.\n"""\
-        """A log has been written to "%s".\n\nError information:\n""" % \
-        ("yourmail at server.com", "")
-    versionInfo="0.0.1"
     timeString = time.strftime("%Y-%m-%d, %H:%M:%S")
     
     
@@ -33,14 +17,22 @@ def excepthook(excType, excValue, tracebackobj):
     errmsg = '%s: \n%s' % (str(excType), str(excValue))
     sections = [separator, timeString, separator, errmsg, separator, tbinfo]
     msg = '\n'.join(sections)
-    try:
-        f = open(logFile, "w")
-        f.write(msg)
-        f.write(versionInfo)
-        f.close()
-    except IOError:
-        pass
+    return msg
+    
+def excepthook(excType, excValue, tracebackobj):
+    """
+    Global function to catch unhandled exceptions.
+    
+    @param excType exception type
+    @param excValue exception value
+    @param tracebackobj traceback object
+    """
+    notice = 'Exception Occured: '
+    app = QtWidgets.QApplication([])
+    msg = PrettyPrintException(excType, excValue, tracebackobj)
     errorbox = QtWidgets.QMessageBox()
-    errorbox.setText(str(notice)+str(msg)+str(versionInfo))
+    errorbox.setText(str(notice)+str(msg))
     errorbox.exec_()
+
+
 sys.excepthook = excepthook

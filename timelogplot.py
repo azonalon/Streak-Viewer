@@ -73,7 +73,7 @@ class LoggerWidget(QtWidgets.QWidget):
         
     def closeEvent(self, event):
         self.finish()
-        print('closing...')
+        print('closing logger widget')
         event.accept()
         
     def updatePlot(self):
@@ -108,7 +108,7 @@ class LoggerWidget(QtWidgets.QWidget):
         f.close()
         
     def addEntry(self, value):
-        print('adding entry')
+#        print('adding entry')
         self.values = np.roll(self.values, -1)
         self.timeStamps = np.roll(self.timeStamps, -1)
         self.values[-1] = value

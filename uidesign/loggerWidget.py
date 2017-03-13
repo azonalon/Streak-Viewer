@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'uidesign/loggerWidget.ui'
+# Form implementation generated from reading ui file 'StreakViewer/uidesign/loggerWidget.ui'
 #
 # Created by: PyQt5 UI code generator 5.8
 #
@@ -18,6 +18,9 @@ class Ui_Form(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
+        self.buttonReset = QtWidgets.QPushButton(Form)
+        self.buttonReset.setObjectName("buttonReset")
+        self.horizontalLayout_2.addWidget(self.buttonReset)
         self.buttonStart = QtWidgets.QPushButton(Form)
         self.buttonStart.setObjectName("buttonStart")
         self.horizontalLayout_2.addWidget(self.buttonStart)
@@ -35,6 +38,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
+        self.buttonReset.setText(_translate("Form", "Reset"))
         self.buttonStart.setText(_translate("Form", "Start"))
         self.buttonStop.setText(_translate("Form", "Stop"))
 

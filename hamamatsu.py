@@ -19,7 +19,7 @@ import os.path
 warnings.simplefilter('error', UserWarning)
 
 class HamamatsuFile(object):
-    def __init__(self, filename, offset='from_end', dtype='int16',
+    def __init__(self, filename, offset='from_end', dtype='uint16',
             ignore_header=False, shape=None):
         """ A parser to read Hamamatsu streak camera's .img output files.
         This code was partly adapted from an ImageJ plugin.
@@ -67,12 +67,12 @@ class HamamatsuFile(object):
         self._offset_input = offset
         self._offset_whence = 0
         self._dtype=dtype
-        if dtype=='int32':
-            self._nbytes = 4
-        elif dtype=='int16':
-            self._nbytes = 2
-        else:
-            raise ValueError("Wrong input value for dtype!")
+#        if dtype=='int32':
+#            self._nbytes = 4
+#        elif dtype=='int16':
+        self._nbytes = 2
+#        else:
+#            raise ValueError("Wrong input value for dtype!")
 
         self._set_opener()
 
@@ -207,7 +207,7 @@ class HamamatsuFile(object):
 
 
             self.data = np.fromstring(data_str, dtype=self._dtype).reshape(self.shape[::-1])
-            self.data = np.ndarray.astype(self.data, 'float64')
+            self.data = np.ndarray.astype(self.data, 'float32')
 
             #self.data = np.fromfile(f, dtype=self._dtype,
             #        count=np.prod(self.shape)).reshape(self.shape[::-1])
