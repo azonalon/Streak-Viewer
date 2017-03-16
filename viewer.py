@@ -42,7 +42,25 @@ def unrecurseDictionary(sourceDict, targetDict={}, parentKey=''):
 print('hi')     
         
 #%%
-
+class PIDSpinboxes(QtWidgets.QWidget):
+    def __init__(self, setP, setI, setD, p0=0, i0=0, d0=0, **kwargs):
+        super().__init__()
+        self.p, self.i, self.d = [pg.SpinBox(value=0, **kwargs) for _ in range(3)]
+        self.layout = QtWidgets.QHBoxLayout()
+        self.setLayout(self.layout)
+        self.layout.addWidget(self.p)
+        self.layout.addWidget(self.i)
+        self.layout.addWidget(self.d)
+        self.p.setValue(p0)
+        self.i.setValue(i0)
+        self.d.setValue(d0)
+        setP(p0)
+        setI(i0)
+        setD(d0)
+        
+        self.p.sigValueChanged.connect(lambda sb: setP(sb.value()))
+        self.i.sigValueChanged.connect(lambda sb: setI(sb.value()))
+        self.d.sigValueChanged.connect(lambda sb: setD(sb.value()))
 #%%
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class CalcTreeWidget(QtWidgets.QTreeWidget):
@@ -144,7 +162,9 @@ class ImageViewer(QtWidgets.QMainWindow):
         super().__init__()
         self.setupUi()
         
+        
     def setupUi(self):
+        self.dockWidgets = []
         self.dtw = pg.DataTreeWidget()
         
         self.form = Ui_MainWindow()
@@ -233,6 +253,12 @@ class ImageViewer(QtWidgets.QMainWindow):
     def addTabWidget(self, widget, name):
         self.form.tabWidget.addTab(widget, name)
         self.tabWidgets.append(widget)
+        
+    def addMovableWidget(self, widget):
+        dw = QtWidgets.QDockWidget(self)
+        self.dockWidgets.append(dw)
+        dw.setWidget(widget)
+        self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dw)
         
     def loadImageFromFile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName()[0]
