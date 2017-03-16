@@ -12,7 +12,7 @@ from .uidesign.loggerWidget  import Ui_Form
 #import time
 #import multiprocessing as mp
 import time
-
+import random
 #class DataGenerator():
 #    def __init__(self, ):
 #        self.inUse = False
@@ -38,6 +38,37 @@ class FunctionEvaluateThread(QtCore.QThread, QtCore.QObject):
         result = self.f()
         self.resultReady.emit(result)
 
+class LoggerCurve(pg.PlotCurveItem):
+    def __init__(self, function, interval, color):
+#        self.function = function
+        self.interval = interval
+        self.timer = QtCore.QTimer()
+        self.color = color
+#        self.thread = thread
+        
+        self.thread = FunctionEvaluateThread(function)
+        self.thread.resultReady.connect(self.addEntry)
+        super().__init__(pen=color)
+        
+    def start(self):
+        self.timer.start(self.interval)
+        
+    def requestEntry(self):
+        if self.thread.isRunning():
+            return
+        self.thread.start()
+    
+    def updatePlot(self):
+        x = self.timeStamps
+        y = self.values
+        if self.n < self.numberOfEntries:
+            self.setData(x=x[-self.n:], y=y[-self.n:])
+        else:
+            self.setData(x=x, y=y)
+        
+
+        
+        
 class LoggerWidget(QtWidgets.QWidget):
     def __init__(self, logFile, interval, valueGenerator, plotEntries=1000,
                  parent=None):
@@ -60,39 +91,58 @@ class LoggerWidget(QtWidgets.QWidget):
         self.form.layoutPlotWidget.addWidget(self.plotWidget)
         self.form.buttonStop.clicked.connect(self.finish)
         self.form.buttonStart.clicked.connect(self.start)
-
-        self.evaluateThread = FunctionEvaluateThread(valueGenerator)
-        self.evaluateThread.resultReady.connect(self.addEntry)
-        self.curve = self.plotWidget.plot()
-        self.timer = QtCore.QTimer(parent=parent)
+        self.colors = ['r', 'g', 'b']
+        self.plotItems = []
+        self.views = [self.plotWidget]
+        self.curves = []
         self.timer.timeout.connect(self.requestEntry)
-        self.start()
+
+        n = 0
+        if callable(valueGenerator):
+            self.valueGenerator = [valueGenerator]
+        elif type(valueGenerator) is list:
+            for i, g in enumerate(valueGenerator[1:]):
+                p2 = pg.ViewBox()
+                self.plotWidget.showAxis('right')
+                self.plotWidget.scene().addItem(p2)
+                self.plotWidget.getAxis('right').linkToView(p2)
+                p2.setXLink(self.plotWidget)
+                self.plotWidget.getAxis('right').setLabel('axis2', color='#0000ff')
+                self.views.append(p2)
+                if type(g) is not list:
+                    g = [g]
+                for j, c in g:
+#                    curveItem = pg.PlotCurveItem(pen=self.colors[n])
+                    self.curves.append(
+                            LoggerCurve(
+                                    FunctionEvaluateThread(c['function']),
+                                    c['rate'],
+                                    self.colors[n])
+                                    )
+                    p2.addItem(self.curves[n])
+                    n += 1
+                    
+                
+            
         
-    def start(self):
-        self.timer.start(self.interval)
+
+        self.curve = self.plotWidget.plot()
+        self.start()
+
+        
+
         
     def closeEvent(self, event):
         self.finish()
         print('closing logger widget')
         event.accept()
         
-    def updatePlot(self):
-        x = self.timeStamps
-        y = self.values
-        if self.n < self.numberOfEntries:
-            self.curve.setData(x=x[-self.n:], y=y[-self.n:])
-        else:
-            self.curve.setData(x=x, y=y)
-        
+
         
     def formatTime(self, epochTime):
         return time.strftime('%Y %m %d %H %M %S',
                              time.localtime(epochTime))
-    def requestEntry(self):
-        if self.evaluateThread.isRunning():
-            return
-        self.evaluateThread.start()
-        
+
 
     def finish(self):
         self.timer.stop()
@@ -139,7 +189,7 @@ if __name__ == '__main__':
         time.sleep(.5)
         return x
     
-    cw = LoggerWidget('yhoo.log', 100, f, plotEntries=1000,
+    cw = LoggerWidget('yhoo.log', 100, [{'function':f}, {'function': f}], plotEntries=1000,
                       parent=mw)
     
     
