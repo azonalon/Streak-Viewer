@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'StreakViewer/uidesign/loggerWidget.ui'
+# Form implementation generated from reading ui file 'uidesign/loggerWidget.ui'
 #
 # Created by: PyQt5 UI code generator 5.8
 #
