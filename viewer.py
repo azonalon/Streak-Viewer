@@ -211,7 +211,14 @@ class ImageViewer(QtWidgets.QMainWindow):
         
         self.console = Console()
         self.addTabWidget(self.console, 'Measurement')
-   
+        
+    def timedTask(self, intervall, function):
+        self.timers = []
+        timer = QtCore.QTimer()
+        timer.timeout.connect(function)
+        timer.start(intervall)
+        self.timers.append(timer)
+    
     def addImage(self, data, info, name='New', autoLevel = False):
         it = CalcTreeWidgetItem(self.newItems,
                                 [name, info['time']],
@@ -312,6 +319,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         for child in self.tabWidgets:
             child.closeEvent(event)
         event.accept()
+        quit()
         
     def exec(self):
         self.show()
