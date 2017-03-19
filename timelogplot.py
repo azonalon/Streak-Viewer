@@ -2,11 +2,13 @@
 #import sys
 import numpy as np
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QPixmap, QIcon, QColor
+from PyQt5.QtWidgets import QToolButton, QHBoxLayout, QVBoxLayout
 #from pyqtgraph import QtCore
 import pyqtgraph as pg
 #import excepthook
 import subprocess as sp
-from uidesign.loggerWidget  import Ui_Form
+from .uidesign.loggerWidget  import Ui_Form
 #from PyQt5.QtCore import QTime, QTimer
 #from collections import deque
 #import time
@@ -18,14 +20,16 @@ import random
 #        self.inUse = False
 #    def canGet()
 class TimeAxisItem(pg.AxisItem):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, relative = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.relative = relative
     def tickStrings(self, values, scale, spacing):
-        # PySide's QTime() initialiser fails miserably and dismisses args/kwargs
-#        return [QTime().addMSecs(value).toString('mm:ss') for value in values]
+        values = np.array(values)
+        if self.relative:
+            values  = time.time() + time.timezone - values
         return [time.strftime('%H:%M:%S', time.localtime(value)) 
                 for value in values]
+
 
 # from multiprocessing import Process
 class FunctionEvaluateThread(QtCore.QThread, QtCore.QObject):
@@ -100,7 +104,47 @@ class Logger(QtCore.QObject):
 
 
 
-        
+class CurveOptionWidget(QtWidgets.QGroupBox):
+    def __init__(self, curve, curveItem):  
+        super().__init__()
+        self.setLayout(QtWidgets.QGridLayout())
+        self.pen = curveItem.opts['pen']
+        self.curve = curve
+        color = self.pen.color()
+        pixmap = QPixmap(100,100)
+        pixmap.fill(color)
+        redIcon = QIcon(pixmap)
+        button = QtWidgets.QToolButton()
+        button.setIcon(redIcon)
+        button.setStyleSheet(
+                """
+                    border-style: outset;
+                """)
+        self.curveItem = curveItem
+        self.buttonHide = QtWidgets.QCheckBox('Hide')
+        self.buttonPause = QtWidgets.QCheckBox('Pause')
+        self.layout().addWidget(button)
+  
+        if 'title' in curve:
+            self.setTitle(curve['title'])
+#            self.layout().addWidget(QtWidgets.QLabel(curve['title']))
+
+#        
+        self.layout().addWidget(self.buttonHide)
+        self.layout().addWidget(self.buttonPause)
+        self.buttonHide.stateChanged.connect(self.handleHideState)
+        self.buttonPause.stateChanged.connect(self.handlePauseState)
+    def handleHideState(self, state):
+        if state == QtCore.Qt.Unchecked:
+            self.curveItem.setPen(self.pen)
+        elif state == QtCore.Qt.Checked:
+            self.curveItem.setPen(width=0.001)
+            
+    def handlePauseState(self, state):
+        if state == QtCore.Qt.Unchecked:
+            self.curve['source'].start()
+        elif state == QtCore.Qt.Checked:
+            self.curve['source'].finish()
         
 class LoggerPlotWidget(QtWidgets.QWidget):
     def __init__(self, axesDescriptor, parent=None):
@@ -114,7 +158,8 @@ class LoggerPlotWidget(QtWidgets.QWidget):
         self.plotItem = self.plotWidget.plotItem
         self.form.layoutPlotWidget.addWidget(self.plotWidget)
         self.nAxis = 0
-
+#        self.form.buttonStop.clicked.connect(self.finish)
+        self.loggers = []
         if type(axesDescriptor) is not list:
             axesDescriptor = [axesDescriptor]
         for curves in axesDescriptor:
@@ -157,7 +202,13 @@ class LoggerPlotWidget(QtWidgets.QWidget):
             curve = {'source': curve}
         it = pg.PlotCurveItem(**curve)
         viewBox.addItem(it)
+        
+        optionWidget = CurveOptionWidget(curve, it)      
+        self.form.layoutMenu.insertWidget(0, optionWidget)
+#        legend.setParentItem(view)
+        
         curve['source'].updated.connect(lambda l: self.updatePlot(it, l))
+        self.loggers.append(curve['source'])
     
 #
     def updatePlot(self, plotCurveItem, logger):
@@ -169,12 +220,14 @@ class LoggerPlotWidget(QtWidgets.QWidget):
             plotCurveItem.setData(x=x, y=y)
             
     def closeEvent(self, event):
+        print('closing logger widget')
         self.finish()
+        event.accept()
+
+    def finish(self):
         for l in self.loggers:
             print('finishing logger...')
             l.finish()
-        print('closing logger widget')
-        event.accept()
         
 
 
@@ -182,7 +235,9 @@ v = [0, 0, 0]
 if __name__ == '__main__':
     sp.run('pyuic5 uidesign/loggerWidget.ui -o uidesign/loggerWidget.py', shell=True)
     #QtGui.QApplication.setGraphicsSystem('raster')
-#    import excepthook
+    import excepthook
+
+
     global x, y, z
     x=0; y=0; z=0
     def f(i):
@@ -197,17 +252,21 @@ if __name__ == '__main__':
     layout = QtWidgets.QGridLayout(cw)
     
     
-    loggerx = Logger('x.log', lambda: f(0), 100, 100)
+    loggerx = Logger('x.log', lambda: f(0), 100, 10000)
     loggerx.start()
-    loggery = Logger('y.log', lambda: f(1), 100, 100)
+    loggery = Logger('y.log', lambda: f(1), 100, 10000)
     loggery.start()
-    loggerz = Logger('z.log', lambda: f(2), 100, 100)
+    loggerz = Logger('z.log', lambda: f(2), 100, 10000)
     loggerz.start()
     
-    lwg = LoggerPlotWidget([{'source': loggerx, 'pen': 'r'},
-                            {'source': loggery, 'pen': 'g'},
-                            {'source': loggerz, 'pen': 'b'}])
-    layout.addWidget(lwg)
+#    lwg = LoggerPlotWidget({'curves': [{'source': loggerx, 'pen': 'r'},
+#                            {'source': loggery, 'pen': 'g'},
+#                            {'source': loggerz, 'pen': 'b'}]})
+#    layout.addWidget(lwg)
+    lwg2 = LoggerPlotWidget([{'source': loggerx, 'pen': 'r', 'title': 'red curve'},
+                            {'source': loggery, 'pen': 'g', 'title': 'green curve'},
+                            {'source': loggerz, 'pen': 'b', 'title': 'curve'}])
+    layout.addWidget(lwg2)
     mw.show()
 
     app.exec_()

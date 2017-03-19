@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
-#import os
+#__package__ = 'StreakViewer'
+import os
 import sys
 #import numpy as np
 from PyQt5 import QtWidgets, QtGui
@@ -11,13 +11,14 @@ from pyqtgraph import QtCore
 Qt = QtCore.Qt
 import h5py
 from pathlib import Path
-import importlib
-#from pyqtgraph.Qt import QtWidgets
+if __name__ != '__main__':
+    from .uidesign.mainWindow import Ui_MainWindow
+    from .hamamatsu import HamamatsuFile
+else:
+    from uidesign.mainWindow import Ui_MainWindow
+    from hamamatsu import HamamatsuFile
+    
 
-#from scipy.optimize import curve_fit
-#from PyQt5.QtWidgets import QMessageBox
-
-from .uidesign.mainWindow import Ui_MainWindow
 def makeColorMap():
     pos = np.array([0., 1., 0.5, 0.25, 0.75])
     color = np.array([[0,255,255,255], [255,255,0,255], [0,0,0,255], (0, 0, 255, 255), (255, 0, 0, 255)], dtype=np.ubyte)
@@ -43,7 +44,7 @@ print('hi')
         
 #%%
 class PIDSpinboxes(QtWidgets.QWidget):
-    def __init__(self, setP, setI, setD, p0=0, i0=0, d0=0, **kwargs):
+    def __init__(self, setP, setI, setD, setPoint=None, p0=0, i0=0, d0=0, sp0=0, **kwargs):
         super().__init__()
         self.p, self.i, self.d = [pg.SpinBox(value=0, **kwargs) for _ in range(3)]
         self.layout = QtWidgets.QHBoxLayout()
@@ -169,7 +170,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
-        self.form.layoutImageInfo.addWidget(self.dtw)
+        self.addMovableWidget(self.dtw, 'Image Info')
         self.imgview = pg.ImageView()
         self.form.tabWidget.addTab(self.imgview, "Image")
 #        self.form.tabWidget.addTab(self.imgview, "Monitor")
@@ -177,7 +178,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.treeImages = CalcTreeWidget()
         self.tabWidgets = [self.imgview]
         self.measurementObject = None
-        self.form.layoutCalcTreeWidget.addWidget(self.treeImages)
+        self.addMovableWidget(self.treeImages, 'Images')
         self.newItems = CalcTreeWidgetItem(
                 self.treeImages, ['New', ''], kind='folder')
         
@@ -254,11 +255,16 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.form.tabWidget.addTab(widget, name)
         self.tabWidgets.append(widget)
         
-    def addMovableWidget(self, widget):
-        dw = QtWidgets.QDockWidget(self)
+    def addMovableWidget(self, widget, title):
+        dw = QtWidgets.QDockWidget(title, parent=self)
         self.dockWidgets.append(dw)
         dw.setWidget(widget)
         self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dw)
+        visibleAction = QtWidgets.QAction(title, parent=self)
+        visibleAction.setCheckable(True)
+        visibleAction.toggled['bool'].connect(dw.setVisible)
+        dw.visibilityChanged.connect(visibleAction.setChecked)
+        self.form.menuView.addAction(visibleAction)
         
     def loadImageFromFile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName()[0]
@@ -318,24 +324,14 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.app.exec_()
 
 
-        
-
-fit = lambda x, a, b, x0: a*np.exp(b*(x-x0)**2)
-# from aqt.qt import debug; debug()
-#%%
-if __name__=='__main__':
-    import subprocess as sp
-    import excepthook
-    from pathlib import Path
-    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
-    from hamamatsu import HamamatsuFile
+def makeTestViewer():
+    p = os.path.dirname(__file__)
     imv  = ImageViewer()
     i=0
     imgs = []
-#    win = pg.GraphicsWindow()
-#    p = win.addPlot()
-    for f in [p.as_posix() for p in Path('.').glob('sample_images/*.img')]:
-        sample = HamamatsuFile(f)
+    print(p)
+    for f in os.listdir(p + '/sample_images'):
+        sample = HamamatsuFile(p + '/sample_images/' + f)
         sample.header['time'] = sample.header['Application']['Time']
         sample.header['exposure'] = sample.header['Acquisition']['ExposureTime']
         sample.header['optical orientation'] = '+' if i % 2 == 0 else '-' 
@@ -343,8 +339,17 @@ if __name__=='__main__':
         imv.addImage(sample.data, sample.header, name = f)
         imgs.append(sample.data)
         i += 1
-#    print(unrecurseDictionary(sample.header))
-    imv.newItems.child(0).saveImageToFile('testimg')
-    node = CalcTreeWidgetItem(imv.fromFileItems, ['testimg'], fromfile = 'testimg.hdf5')
+    return imv
+
+
+fit = lambda x, a, b, x0: a*np.exp(b*(x-x0)**2)
+# from aqt.qt import debug; debug()
+#%%
+if __name__=='__main__':
+    import subprocess as sp
+    import excepthook
+    imv = makeTestViewer()
+    from pathlib import Path
+    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
 #    print(polarization(imgs))
     imv.exec()

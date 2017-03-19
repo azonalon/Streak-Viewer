@@ -19,12 +19,16 @@ pw.setWindowTitle('pyqtgraph example: MultiplePlotAxes')
 pi = pw.plotItem
 #pi.setLabels(left='axis 1')
 #pi.setXLink(pi)
-
+pi.addLegend()
 ## create a new ViewBox, link the right axis to its coordinate system
+lg = pg.LegendItem()
+lg.setParentItem(pi)
 vb1 = pg.ViewBox()
 ax1 = pg.AxisItem('right')
 pi.scene().addItem(vb1)
 pi.layout.addItem(ax1, 2, 1)
+pi.layout.addItem(lg, 2, 3)
+#pi.layout.addItem(vb1, 2, 3)
 ax1.linkToView(vb1)
 vb1.setXLink(pi)
 
