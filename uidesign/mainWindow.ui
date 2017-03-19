@@ -77,61 +77,10 @@
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionImages"/>
-    <addaction name="actionImage_Info"/>
    </widget>
    <addaction name="menuDo"/>
    <addaction name="menuView"/>
    <addaction name="menuMeasure"/>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::AllDockWidgetAreas</set>
-   </property>
-   <property name="windowTitle">
-    <string>Images</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetWidget">
-    <layout class="QGridLayout" name="layoutCalcTreeWidget"/>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::AllDockWidgetAreas</set>
-   </property>
-   <property name="windowTitle">
-    <string>Image Info</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="widgetwidget">
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <layout class="QGridLayout" name="layoutImageInfo"/>
-   </widget>
   </widget>
   <action name="actionRecalc">
    <property name="text">
@@ -207,70 +156,5 @@
   <zorder>dockWidget</zorder>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionImages</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>dockWidget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>28</x>
-     <y>225</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionImage_Info</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>dockWidget_2</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>28</x>
-     <y>627</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dockWidget</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionImages</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>28</x>
-     <y>225</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dockWidget_2</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionImage_Info</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>28</x>
-     <y>627</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
