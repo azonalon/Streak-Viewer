@@ -10,15 +10,19 @@ class PIDSpinboxes(QtWidgets.QWidget):
         self.boxes = [pg.SpinBox(value=0, **kwargs) for _ in range(4)]
         self.layout = QtWidgets.QGridLayout()
         self.setLayout(self.layout)
+        self.lambdas= []
         for i in range(4):
             x0 = [p0, i0, d0, sp0][i]
             setter = [setP, setI, setD, setPoint][i]
             title = ['Prop', 'Int', 'Dev', 'Set'][i]
-            box = self.boxes[i]
-            box.sigValueChanged.connect(lambda sb: setter(sb.value()))
+#            box = self.boxes[i]
+            self.lambdas.append(lambda sb: setter(sb.value()))
+            self.boxes[i].sigValueChanged.connect(self.lambdas[i])
             setter(x0)
-            self.layout.addWidget(box, 1, i)
+            self.boxes[i].setValue(x0)
             self.layout.addWidget(QtWidgets.QLabel(title), 0, i)
+            self.layout.addWidget(self.boxes[i], 1, i)
+            
             
             
             

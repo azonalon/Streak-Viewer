@@ -3,11 +3,11 @@
 import os
 import sys
 #import numpy as np
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import matplotlib.pyplot as plt
 import numpy as np
-from pyqtgraph import QtCore
+#from pyqtgraph import QtCore
 Qt = QtCore.Qt
 import h5py
 from pathlib import Path
@@ -267,7 +267,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.dockWidgets.append(dw)
         dw.setWidget(widget)
         self.addDockWidget(QtCore.Qt.DockWidgetArea(1), dw)
-        visibleAction = QtWidgets.QAction(title, parent=self)
+        visibleAction = QtWidgets.QAction(title, self)
         visibleAction.setCheckable(True)
         visibleAction.toggled['bool'].connect(dw.setVisible)
         dw.visibilityChanged.connect(visibleAction.setChecked)

@@ -20,7 +20,7 @@ import random
 #        self.inUse = False
 #    def canGet()
 class TimeAxisItem(pg.AxisItem):
-    def __init__(self, relative = True, *args, **kwargs):
+    def __init__(self, relative = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.relative = relative
     def tickStrings(self, values, scale, spacing):
@@ -58,6 +58,7 @@ class Logger(QtCore.QObject):
         
         self.timer.timeout.connect(self.requestEntry)
         self.thread.resultReady.connect(self.addEntry)
+        self.start()
 
     def start(self):
         self.timer.start(self.interval)
