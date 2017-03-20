@@ -222,7 +222,7 @@ class ImageViewer(QtWidgets.QMainWindow):
     
     def addImage(self, data, info, name='New', autoLevel = False):
         it = CalcTreeWidgetItem(self.newItems,
-                                [name, info['time']],
+                                [name],
                                 img=data, info=info,
                                 kind = 'data'
                                        )
@@ -230,6 +230,7 @@ class ImageViewer(QtWidgets.QMainWindow):
 #        if autoLevel:
 #            self.autoLevel(it)
         self.changeActiveImage(it, None)
+        return it
     def startMeasurement(self):
         if self.measurementObject != None and self.measurementObject.isRunning():
             print('measurement is running')
@@ -237,7 +238,8 @@ class ImageViewer(QtWidgets.QMainWindow):
         try:
             self.measurementObject = self.measurementObjectCreator()
         except Exception as e:
-            print('Could not create measurement object:\n', e)
+#            print('Could not create measurement object:\n', e)
+            raise e
             return
         self.form.actionStartMeasurement.setEnabled(False)
         self.form.actionStartMeasurement.setText('Running...')
@@ -298,7 +300,7 @@ class ImageViewer(QtWidgets.QMainWindow):
     def autoLevel(self):
         item = self.treeImages.currentItem()
         print(item)
-        if item is None or item.img == None:
+        if item is None or item.img is None:
             return
         data = item.img
         hist, bins = np.histogram(data, bins=2**16)
@@ -306,7 +308,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         hist = (hist * np.roll(hist, 10) * np.roll(hist, 60))**1/3
     #    m = np.max(hist)/1000
         print(hist)
-        minmax = np.argwhere(hist>0).flatten()[[0, -1]]
+        minmax = np.argwhere(hist>=0).flatten()[[0, -1]]
         print(minmax)
         minmax = bins[minmax].flatten()
         print(minmax)
