@@ -38,4 +38,14 @@ class Measurement(QtCore.QThread, QtCore.QObject):
             msg = exc.PrettyPrintException(*sys.exc_info())
             self.message(msg)
             
-
+"""
+def makeMeasurementObject():
+    import measurement
+    importlib.reload(measurement)
+    obj = measurement.Measurement(random=random.random)
+    obj.signalNumberGenerated.connect(lambda x: print('measured ' + str(x)))
+    return obj
+imv = StreakViewer.viewer.makeTestViewer()
+imv.connectMeasurement(makeMeasurementObject)
+imv.startMeasurement()
+"""
