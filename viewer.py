@@ -274,23 +274,31 @@ class ImageViewer(QtWidgets.QMainWindow):
         visibleAction.toggled['bool'].connect(dw.setVisible)
         dw.visibilityChanged.connect(visibleAction.setChecked)
         self.form.menuView.addAction(visibleAction)
-        
+    def errorBox(self, text):
+        QtWidgets.QMessageBox.warning(self, 'Error', text)
     def loadImageFromFile(self):
-        fname = QtWidgets.QFileDialog.getOpenFileName()[0]
-        if fname == "":
-            return
-        if Path(fname).suffix != '.hdf5':
-            print(fname + ' is not a hdf5 file')
-            return
-        CalcTreeWidgetItem(
-                self.fromFileItems,
-                [Path(fname).stem], 
-                fromfile = fname, kind='data')
+        fnames = QtWidgets.QFileDialog.getOpenFileNames(
+                self, filter='HDF5 Image (*.hdf5)')[0]
+#        if fname == "":
+#            return
+#        if Path(fname).suffix != '.hdf5':
+#            print(fname + ' is not a hdf5 file')
+#            return
+        
+        for fname in fnames:
+            try:
+                CalcTreeWidgetItem(
+                        self.fromFileItems,
+                        [Path(fname).stem], 
+                        fromfile = fname, kind='data')
+            except Exception as e:
+                self.errorBox(fname + ': ' + str(e))
+                
     def saveImageToFile(self, fname=None):
         item = self.treeImages.currentItem()
 #        print(f)
         print('fname :', fname)
-        if item == None:
+        if item == None or item.img == None:
             return
 #        if fname == None:
         fname = QtWidgets.QFileDialog.getSaveFileName()[0]
@@ -308,7 +316,7 @@ class ImageViewer(QtWidgets.QMainWindow):
         hist = (hist * np.roll(hist, 10) * np.roll(hist, 60))**1/3
     #    m = np.max(hist)/1000
         print(hist)
-        minmax = np.argwhere(hist>=0).flatten()[[0, -1]]
+        minmax = np.argwhere(hist>0).flatten()[[0, -1]]
         print(minmax)
         minmax = bins[minmax].flatten()
         print(minmax)
