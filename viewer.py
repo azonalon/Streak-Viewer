@@ -118,12 +118,21 @@ class CalcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
         
     [].index
     def saveImageToFile(self, fname):
+        fname = fname.lower()
         fname = Path(fname).with_suffix('.hdf5').as_posix()
-        f = h5py.File(fname, 'w')
-        f.create_dataset('img', data=self.img)
-        for key, value in self.info.items():
-            f.attrs[key] = value
-        f.close()
+        directory = os.path.dirname(fname)
+        if not os.path.exists(directory):
+            print('creating new directory:', directory)
+            os.makedirs(directory)
+        try:
+            f = h5py.File(fname, 'w')
+            f.create_dataset('img', data=self.img)
+            for key, value in self.info.items():
+                print(key, value)
+                f.attrs[key] = value
+            f.close()
+        except Exception as e:
+            print('error saving file')
         
     def loadImageFromFile(self, fname):
         f = h5py.File(fname, 'r')
@@ -139,7 +148,7 @@ def polarization(imgs):
         a = np.sum(imgs[0:2*n:2], 0) - np.sum(imgs[1:2*n:2], 0)
         b = np.sum(imgs, 0)
 #        print(a/b)
-        return a/b
+        return a.astype('f8')/b.astype('f8')
 
 class Console(QtWidgets.QPlainTextEdit):
     def __init__(self):
@@ -239,7 +248,7 @@ class ImageViewer(QtWidgets.QMainWindow):
             self.measurementObject = self.measurementObjectCreator()
         except Exception as e:
 #            print('Could not create measurement object:\n', e)
-            raise e
+            self.errorBox('Failed to start measurement:' + str(e))
             return
         self.form.actionStartMeasurement.setEnabled(False)
         self.form.actionStartMeasurement.setText('Running...')
@@ -256,7 +265,11 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.measurementObject.start()
         
     def connectMeasurement(self, measurementObjectCreator):
-        self.measurementObjectCreator = measurementObjectCreator
+        try:
+            self.measurementObjectCreator = measurementObjectCreator
+        except Exception as e:
+            self.errorBox('Could not create measurement:' + str(e))
+            return
         self.form.actionStartMeasurement.triggered.connect(self.startMeasurement)
         self.form.actionStartMeasurement.setEnabled(True)
 

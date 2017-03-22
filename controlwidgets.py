@@ -27,8 +27,8 @@ class PIDSpinboxes(QtWidgets.QWidget):
             self.layout.addWidget(self.boxes[i], 1, i)
             self.layout.addItem(verticalSpacer(), 2, i)
             box.valueChanged.connect(setter)
-    def sizeHint(self):
-        return QtCore.QSize(10, 10)
+#    def sizeHint(self):
+#        return QtCore.QSize(10, 10)
     
 class ControlWidget(QtWidgets.QGroupBox):
     def __init__(self, descriptor, title):

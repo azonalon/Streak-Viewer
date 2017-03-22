@@ -10,10 +10,19 @@ Demonstrates a way to put multiple axes around a single plot.
 import pyqtgraph as pg
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
-
+from pathlib import Path
 pg.mkQApp()
-
+import os
 #fnames = QtWidgets.QFileDialog.getOpenFileNames(
 #        filter='HDF5 Image (*.hdf5)')
 #print(fnames)
-QtWidgets.QMessageBox.warning(None, 'Warning', 'hi')
+fname = 'images/testfolder/test.bla'
+fname = fname.lower()
+fname = Path(fname).with_suffix('.hdf5').as_posix()
+directory = os.path.dirname(fname)
+if not os.path.exists(directory):
+    os.makedirs(directory)
+    
+def testprint(*args):
+    print(' '.join([str(arg) for arg in args]))
+testprint('haha', 'lulu')

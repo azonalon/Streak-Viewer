@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/eduard/programming/Streak-Viewer/StreakViewer/uidesign/mainWindow.ui'
+# Form implementation generated from reading ui file 'uidesign/mainWindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.8
+# Created by: PyQt5 UI code generator 5.6
 #
 # WARNING! All changes made in this file will be lost!
 
