@@ -45,6 +45,8 @@ class ControlWidget(QtWidgets.QGroupBox):
             for item in row:
                 if item[0] == 'float set':
                     self.layout().addLayout(self.floatSetter(*item[1:]), i, j)
+                elif item[0] == 'bool set':
+                    self.layout().addWidget (self.boolSetter(*item[1:]), i, j)
                 else:
                     raise Exception('Unknown Descriptor: ' + item[0])
                 j += 1
@@ -68,6 +70,12 @@ class ControlWidget(QtWidgets.QGroupBox):
         sb.valueChanged.connect(f)
         layout.addWidget(sb)
         return layout
+    
+    def boolSetter(self, f, title):
+        box = QtWidgets.QCheckBox(title)
+        box.stateChanged.connect(lambda x: f(bool(x)))
+        return box
+        
                 
         
             
@@ -78,12 +86,14 @@ if __name__ == '__main__':
 #    boxes = PIDSpinboxes(*fs, p0=1, i0=2, d0=3, sp0=4)
 #    boxes.show()
 #    
-    cw = ControlWidget([[('float set', lambda x: print(x), 'Print!', (0, 10), 4),
-                        ('float set', lambda x: print(x), 'Print!', (0, 10), 4),
-                        ('float set', lambda x: print(x), 'Print!', (0, 10), 4)],
-    [('float set', lambda x: print(x), 'Print!', (0, 10), 4),
-                        ('float set', lambda x: print(x), 'Print!', (0, 10), 4),
-                        ('float set', lambda x: print(x), 'Print!', (0, 10), 4)]], 'Control It Man!')
+    cw = ControlWidget(
+            [[('float set', lambda x: print(x), 'Print!', (0, 10), 4),
+              ('float set', lambda x: print(x), 'Print!', (0, 10), 4),
+              ('float set', lambda x: print(x), 'Print!', (0, 10), 4)],
+             [('bool set', lambda x: print(x), 'Set Status!'),
+              ('float set', lambda x: print(x), 'Print!', (0, 10), 4),
+              ('float set', lambda x: print(x), 'Print!', (0, 10), 4)]
+             ], 'Control It Man!')
     cw.show()
     
 

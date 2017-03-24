@@ -38,30 +38,7 @@ def unrecurseDictionary(sourceDict, targetDict={}, parentKey=''):
             unrecurseDictionary(value, targetDict, key + '.')
     return targetDict
 
-#def recurseDictionary()
 
-print('hi')     
-        
-#%%
-class PIDSpinboxes(QtWidgets.QWidget):
-    def __init__(self, setP, setI, setD, setPoint=None, p0=0, i0=0, d0=0, sp0=0, **kwargs):
-        super().__init__()
-        self.p, self.i, self.d = [pg.SpinBox(value=0, **kwargs) for _ in range(3)]
-        self.layout = QtWidgets.QHBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.addWidget(self.p)
-        self.layout.addWidget(self.i)
-        self.layout.addWidget(self.d)
-        self.p.setValue(p0)
-        self.i.setValue(i0)
-        self.d.setValue(d0)
-        setP(p0)
-        setI(i0)
-        setD(d0)
-        
-        self.p.sigValueChanged.connect(lambda sb: setP(sb.value()))
-        self.i.sigValueChanged.connect(lambda sb: setI(sb.value()))
-        self.d.sigValueChanged.connect(lambda sb: setD(sb.value()))
 #%%
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class CalcTreeWidget(QtWidgets.QTreeWidget):
@@ -118,7 +95,7 @@ class CalcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
         
     [].index
     def saveImageToFile(self, fname):
-        fname = fname.lower()
+#        fname = fname.lower()
         fname = Path(fname).with_suffix('.hdf5').as_posix()
         directory = os.path.dirname(fname)
         if not os.path.exists(directory):
@@ -135,6 +112,7 @@ class CalcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
             print('error saving file')
         
     def loadImageFromFile(self, fname):
+        fname = Path(fname).with_suffix('.hdf5').as_posix()
         f = h5py.File(fname, 'r')
         self.img = f['img'][...]
         self.info = dict(f.attrs)
@@ -250,19 +228,24 @@ class ImageViewer(QtWidgets.QMainWindow):
 #            print('Could not create measurement object:\n', e)
             self.errorBox('Failed to start measurement:' + str(e))
             return
-        self.form.actionStartMeasurement.setEnabled(False)
-        self.form.actionStartMeasurement.setText('Running...')
+        
+        self.form.actionStartMeasurement.setText('Terminate')
+        self.form.actionStartMeasurement.triggered.connect(self.killMeasurement)
+        
 
-        self.measurementObject.finished.connect(
-                lambda: self.form.actionStartMeasurement.setEnabled(True))
-        self.measurementObject.finished.connect(
-                lambda: self.form.actionStartMeasurement.setText('Start'))
-        self.measurementObject.finished.connect(lambda: self.console.write('~' * 80 + "\nMeasurement exit!\n" + '~' *80 ))
+        self.measurementObject.finished.connect(self.onMeasurementEnd)
+        self.measurementObject.finished.connect(lambda: self.console.write('~' * 80 + "\nMeasurement exit!\n" + '~' * 80 ))
         self.measurementObject.signalMessage.connect(self.console.write)
         
             
         self.console.write('~' * 80 + '\nStarting new measurement...\n' + '~' * 80)
         self.measurementObject.start()
+        
+    def onMeasurementEnd(self):
+        self.measurementObject.terminate()
+        self.form.actionStartMeasurement.setText('Start')
+        self.form.actionStartMeasurement.triggered.disconnect()
+        self.form.actionStartMeasurement.triggered.connect(self.startMeasurement)
         
     def connectMeasurement(self, measurementObjectCreator):
         try:
@@ -272,6 +255,10 @@ class ImageViewer(QtWidgets.QMainWindow):
             return
         self.form.actionStartMeasurement.triggered.connect(self.startMeasurement)
         self.form.actionStartMeasurement.setEnabled(True)
+    
+    def killMeasurement(self):
+        self.measurementObject.terminate()
+        
 
     def addTabWidget(self, widget, name):
         self.form.tabWidget.addTab(widget, name)
@@ -292,12 +279,7 @@ class ImageViewer(QtWidgets.QMainWindow):
     def loadImageFromFile(self):
         fnames = QtWidgets.QFileDialog.getOpenFileNames(
                 self, filter='HDF5 Image (*.hdf5)')[0]
-#        if fname == "":
-#            return
-#        if Path(fname).suffix != '.hdf5':
-#            print(fname + ' is not a hdf5 file')
-#            return
-        
+
         for fname in fnames:
             try:
                 CalcTreeWidgetItem(
@@ -324,16 +306,19 @@ class ImageViewer(QtWidgets.QMainWindow):
         if item is None or item.img is None:
             return
         data = item.img
-        hist, bins = np.histogram(data, bins=2**16)
+        hist, bins = np.histogram(data, bins=2**15)
         bins = bins[:-1]
         hist = (hist * np.roll(hist, 10) * np.roll(hist, 60))**1/3
     #    m = np.max(hist)/1000
         print(hist)
-        minmax = np.argwhere(hist>0).flatten()[[0, -1]]
-        print(minmax)
-        minmax = bins[minmax].flatten()
-        print(minmax)
-        self.imgview.setLevels(*minmax)
+        a = np.argwhere(hist>0)
+        if len(a) >= 2:
+            minmax = np.argwhere(hist>0).flatten()[[0, -1]]
+            print(minmax)
+            minmax = bins[minmax].flatten()
+            self.imgview.setLevels(*minmax)
+        else:
+            print("Could not auto level")
     
         
     def changeActiveImage(self, newItem, lastItem):
@@ -372,15 +357,19 @@ def makeTestViewer():
         i += 1
     return imv
 
+def testSaveAndLoadImage():
+    a = CalcTreeWidgetItem(['some item'], img=np.zeros((1024, 1024)))
+    a.saveImageToFile('Images/Somefile')
+    b = CalcTreeWidgetItem(fromfile='Images/Somefile')
+    return b
 
-fit = lambda x, a, b, x0: a*np.exp(b*(x-x0)**2)
 # from aqt.qt import debug; debug()
 #%%
 if __name__=='__main__':
-    import subprocess as sp
-    import excepthook
+#    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
+#    import subprocess as sp
+#    import excepthook
     imv = makeTestViewer()
-    from pathlib import Path
-    sp.run('pyuic5 uidesign/mainWindow.ui -o uidesign/mainWindow.py', shell=True)
+    b = testSaveAndLoadImage()
 #    print(polarization(imgs))
     imv.exec()
