@@ -13,16 +13,15 @@ import numpy as np
 from pathlib import Path
 pg.mkQApp()
 import os
+import h5py
 #fnames = QtWidgets.QFileDialog.getOpenFileNames(
 #        filter='HDF5 Image (*.hdf5)')
 #print(fnames)
-fname = 'images/testfolder/test.bla'
-fname = fname.lower()
-fname = Path(fname).with_suffix('.hdf5').as_posix()
-directory = os.path.dirname(fname)
-if not os.path.exists(directory):
-    os.makedirs(directory)
+fs = []
+a = np.fromfile('sampletemperature.log')
+for i, T in enumerate(range(4, 48, 4)):
+    f = h5py.File(('images/typeiipolarization/22_03_%2.2fk_tempdep.hdf5' % (T)).replace('.', ',', 1), 'r')
+    fs.append(f)
+
     
-def testprint(*args):
-    print(' '.join([str(arg) for arg in args]))
-testprint('haha', 'lulu')
+#plt.plot()

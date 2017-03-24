@@ -100,8 +100,8 @@ class Logger(QtCore.QObject):
                     )
         self.updated.emit(self)
     def formatTime(self, epochTime):
-        return time.strftime('%Y %m %d %H %M %S',
-                             time.localtime(epochTime))
+        return str(epochTime)#time.strftime('%Y %m %d %H %M %S',
+                #             time.localtime(epochTime))
 
 
 
