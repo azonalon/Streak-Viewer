@@ -78,8 +78,8 @@ class Logger(QtCore.QObject):
         f = open(self.logFile, 'a')
         remainingEntries = self.n % self.numberOfEntries
         for j in range(self.numberOfEntries - remainingEntries, self.numberOfEntries):
-            f.write('%s %f\n' % (
-                    self.formatTime(self.timeStamps[j]),
+            f.write('%f %f\n' % (
+                    self.timeStamps[j],
                     self.values[j])
                 )
         f.close()
@@ -95,7 +95,7 @@ class Logger(QtCore.QObject):
             with open(self.logFile, 'a') as f:
                 for j in range(self.numberOfEntries):
                     f.write(
-                            '%s %f\n' % (self.formatTime(self.timeStamps[j]),
+                            '%f %f\n' % (self.timeStamps[j],
                                        self.values[j])
                     )
         self.updated.emit(self)
