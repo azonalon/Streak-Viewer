@@ -16,6 +16,7 @@ import numpy as np
 import warnings
 import os.path
 
+
 warnings.simplefilter('error', UserWarning)
 
 class HamamatsuFile(object):

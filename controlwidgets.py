@@ -32,7 +32,8 @@ class PIDSpinboxes(QtWidgets.QWidget):
     
 class ControlWidget(QtWidgets.QGroupBox):
     def __init__(self, descriptor, title):
-        super().__init__(title)
+        QtWidgets.QGroupBox.__init__(self, title)
+#        super().__init__()
         self.setLayout(QtWidgets.QGridLayout())
         if type(descriptor) is tuple:
             descriptor = [descriptor]

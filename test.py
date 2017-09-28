@@ -14,14 +14,21 @@ from pathlib import Path
 pg.mkQApp()
 import os
 import h5py
+import time
 #fnames = QtWidgets.QFileDialog.getOpenFileNames(
 #        filter='HDF5 Image (*.hdf5)')
 #print(fnames)
-fs = []
-a = np.fromfile('sampletemperature.log')
-for i, T in enumerate(range(4, 48, 4)):
-    f = h5py.File(('images/typeiipolarization/22_03_%2.2fk_tempdep.hdf5' % (T)).replace('.', ',', 1), 'r')
-    fs.append(f)
 
-    
-#plt.plot()
+class A(QtCore.QThread):
+    def __init__(self):
+        QtCore.QThread.__init__(self)
+        
+    def run(self):
+        while True:
+            print('im sleeping')
+            time.sleep(100)
+            
+a = A()
+a.start()
+time.sleep(1)
+a.terminate()
