@@ -66,7 +66,7 @@ class Logger(QtCore.QObject):
     def requestEntry(self):
 #        print('requesting...')
         if self.thread.isRunning():
-            print('thread still running')
+#            print('thread still running')
             return
         self.thread.start()
     

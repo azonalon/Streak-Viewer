@@ -7,6 +7,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import matplotlib.pyplot as plt
 import numpy as np
+import StreakViewer.excepthook as exc
 #from pyqtgraph import QtCore
 Qt = QtCore.Qt
 import h5py
@@ -226,7 +227,7 @@ class ImageViewer(QtWidgets.QMainWindow):
             self.measurementObject = self.measurementObjectCreator()
         except Exception as e:
 #            print('Could not create measurement object:\n', e)
-            self.errorBox('Failed to start measurement:' + str(e))
+            self.errorBox('Failed to start measurement:' + exc.PrettyPrintException(*sys.exc_info()))
             return
         
         self.form.actionStartMeasurement.setText('Terminate')
@@ -257,7 +258,8 @@ class ImageViewer(QtWidgets.QMainWindow):
         self.form.actionStartMeasurement.setEnabled(True)
     
     def killMeasurement(self):
-        self.measurementObject.terminate()
+        self.measurementObject.shouldExit = True
+        self.measurementObject.wait()
         
 
     def addTabWidget(self, widget, name):
